@@ -45,6 +45,9 @@
          <semantic:typeRef>string</semantic:typeRef>
       </semantic:itemComponent>
    </semantic:itemDefinition>
+   <semantic:itemDefinition name="tStrListList" isCollection="true">
+      <semantic:typeRef>tStrList</semantic:typeRef>
+   </semantic:itemDefinition>
    <semantic:decision id="d_ForReturnContextEntry" name="For Return Context Entry">
       <semantic:variable name="For Return Context Entry" typeRef="tStrList"/>
       <semantic:for iteratorVariable="x">
@@ -423,5 +426,33 @@
       <semantic:literalExpression>
          <semantic:text>For Context BKM()</semantic:text>
       </semantic:literalExpression>
+   </semantic:decision>
+   <semantic:decision id="d_NestedForInForContext" name="Nested For In For Context">
+      <semantic:variable name="Nested For In For Context" typeRef="tStrListList"/>
+      <semantic:for iteratorVariable="x">
+         <semantic:in>
+            <semantic:literalExpression>
+               <semantic:text>["a", "b"]</semantic:text>
+            </semantic:literalExpression>
+         </semantic:in>
+         <semantic:return>
+            <semantic:for iteratorVariable="y">
+               <semantic:in>
+                  <semantic:literalExpression>
+                     <semantic:text>["1", "2"]</semantic:text>
+                  </semantic:literalExpression>
+               </semantic:in>
+               <semantic:return>
+                  <semantic:context>
+                     <semantic:contextEntry>
+                        <semantic:literalExpression>
+                           <semantic:text>x + y</semantic:text>
+                        </semantic:literalExpression>
+                     </semantic:contextEntry>
+                  </semantic:context>
+               </semantic:return>
+            </semantic:for>
+         </semantic:return>
+      </semantic:for>
    </semantic:decision>
 </semantic:definitions>

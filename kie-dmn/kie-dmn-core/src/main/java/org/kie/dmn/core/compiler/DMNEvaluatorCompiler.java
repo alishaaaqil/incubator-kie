@@ -402,14 +402,15 @@ public class DMNEvaluatorCompiler implements DMNDecisionLogicCompiler {
 
     /**
      * Checks if the given <code>Context</code> produces the result of the <code>Decision</code> or <code>BusinessKnowledgeModel</code>:
-     * it is the root expression of the node, or a <code>then</code>/<code>else</code> branch of a root <code>Conditional</code>.
+     * it is the expression of the node itself, or a <code>then</code>/<code>else</code> branch of it when that is a <code>Conditional</code>.
+     * A context nested deeper (e.g. in a <code>for</code>, a list or another context) is not.
      * The model elements are compared, since the parent links are populated only when a model is unmarshalled.
      * @param ctxDef the context being compiled
      * @param node the node the context belongs to
      * @return <code>true</code> if the value of the context is the result of the node
      */
     static boolean isResultOfDecisionOrBKM(Context ctxDef, DMNBaseNode node) {
-        return getRootExpression(node)
+        return getDecisionBKMNodeExpression(node)
                 .map(root -> isSameOrConditionalBranchOf(root, ctxDef))
                 .orElse(false);
     }
@@ -418,7 +419,7 @@ public class DMNEvaluatorCompiler implements DMNDecisionLogicCompiler {
      * @param node the Decision or BusinessKnowledgeModel node
      * @return the expression of the Decision, or the body of the function definition of the BKM; empty if not available
      */
-    static Optional<Expression> getRootExpression(DMNBaseNode node) {
+    static Optional<Expression> getDecisionBKMNodeExpression(DMNBaseNode node) {
         NamedElement source = node.getSource();
         if (source instanceof Decision decision) {
             return Optional.ofNullable(decision.getExpression());

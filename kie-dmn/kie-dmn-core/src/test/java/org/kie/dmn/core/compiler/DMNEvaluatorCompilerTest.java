@@ -52,6 +52,7 @@ import org.kie.dmn.model.v1_5.TChildExpression;
 import org.kie.dmn.model.v1_5.TConditional;
 import org.kie.dmn.model.v1_5.TContext;
 import org.kie.dmn.model.v1_5.TDecision;
+import org.kie.dmn.model.v1_5.TFor;
 import org.kie.dmn.model.v1_5.TFunctionDefinition;
 import org.kie.dmn.model.v1_5.TInputData;
 import org.kie.dmn.model.v1_5.TList;
@@ -66,7 +67,7 @@ import static org.kie.dmn.core.ast.DMNConditionalEvaluator.EvaluatorType.THEN;
 import static org.kie.dmn.core.compiler.DMNEvaluatorCompiler.getEvaluatorIdentifier;
 import static org.kie.dmn.core.compiler.DMNEvaluatorCompiler.getChildExpression;
 import static org.kie.dmn.core.compiler.DMNEvaluatorCompiler.getEvaluatorIdentifierMap;
-import static org.kie.dmn.core.compiler.DMNEvaluatorCompiler.getRootExpression;
+import static org.kie.dmn.core.compiler.DMNEvaluatorCompiler.getDecisionBKMNodeExpression;
 import static org.kie.dmn.core.compiler.DMNEvaluatorCompiler.isResultOfDecisionOrBKM;
 import static org.kie.dmn.core.compiler.DMNEvaluatorCompiler.isSameOrConditionalBranchOf;
 
@@ -247,35 +248,35 @@ class DMNEvaluatorCompilerTest {
     }
 
     @Test
-    void getRootExpressionOfDecision() {
+    void getDecisionBKMNodeExpressionOfDecision() {
         Expression expression = new TContext();
-        assertThat(getRootExpression(decisionNode(expression))).containsSame(expression);
+        assertThat(getDecisionBKMNodeExpression(decisionNode(expression))).containsSame(expression);
     }
 
     @Test
-    void getRootExpressionOfDecisionWithoutExpression() {
-        assertThat(getRootExpression(decisionNode(null))).isEmpty();
+    void getDecisionBKMNodeExpressionOfDecisionWithoutExpression() {
+        assertThat(getDecisionBKMNodeExpression(decisionNode(null))).isEmpty();
     }
 
     @Test
-    void getRootExpressionOfBKM() {
+    void getDecisionBKMNodeExpressionOfBKM() {
         Expression body = new TContext();
-        assertThat(getRootExpression(bkmNode(functionDefinition(body)))).containsSame(body);
+        assertThat(getDecisionBKMNodeExpression(bkmNode(functionDefinition(body)))).containsSame(body);
     }
 
     @Test
-    void getRootExpressionOfBKMWithoutEncapsulatedLogic() {
-        assertThat(getRootExpression(bkmNode(null))).isEmpty();
+    void getDecisionBKMNodeExpressionOfBKMWithoutEncapsulatedLogic() {
+        assertThat(getDecisionBKMNodeExpression(bkmNode(null))).isEmpty();
     }
 
     @Test
-    void getRootExpressionOfBKMWithoutBody() {
-        assertThat(getRootExpression(bkmNode(functionDefinition(null)))).isEmpty();
+    void getDecisionBKMNodeExpressionOfBKMWithoutBody() {
+        assertThat(getDecisionBKMNodeExpression(bkmNode(functionDefinition(null)))).isEmpty();
     }
 
     @Test
-    void getRootExpressionOfOtherNode() {
-        assertThat(getRootExpression(new InputDataNodeImpl(new TInputData()))).isEmpty();
+    void getDecisionBKMNodeExpressionOfOtherNode() {
+        assertThat(getDecisionBKMNodeExpression(new InputDataNodeImpl(new TInputData()))).isEmpty();
     }
 
     @Test
@@ -379,6 +380,16 @@ class DMNEvaluatorCompilerTest {
     @Test
     void isResultOfDecisionOrBKMBKMWithoutEncapsulatedLogic() {
         assertThat(isResultOfDecisionOrBKM(new TContext(), bkmNode(null))).isFalse();
+    }
+
+    @Test
+    void isResultOfDecisionOrBKMDecisionContextNestedInTwoFors() {
+        Context context = new TContext();
+        TFor inner = new TFor();
+        inner.setReturn(childExpression(context));
+        TFor outer = new TFor();
+        outer.setReturn(childExpression(inner));
+        assertThat(isResultOfDecisionOrBKM(context, decisionNode(outer))).isFalse();
     }
 
     private static DMNBaseNode decisionNode(Expression expression) {

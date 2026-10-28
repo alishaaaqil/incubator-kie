@@ -146,6 +146,16 @@ class DMNContextResultTypeCoercionTest extends BaseInterpretedVsCompiledTest {
         assertThat(resultOf("Context In Nested Function Body", true)).isEqualTo(List.of("a!"));
     }
 
+    // a context nested two levels deep
+
+    @ParameterizedTest
+    @MethodSource("params")
+    void forInForReturnContext(boolean useExecModelCompiler) {
+        init(useExecModelCompiler);
+        assertThat(resultOf("Nested For In For Context", true))
+                .isEqualTo(List.of(List.of("a1", "a2"), List.of("b1", "b2")));
+    }
+
     // the context produces the result of the node: the conversion to a singleton list is preserved
 
     @ParameterizedTest
